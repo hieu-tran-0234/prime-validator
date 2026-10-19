@@ -26,6 +26,9 @@ jobs:
     - name: Build Production Binary
       run: make build
 
+    - name: Run Unit Tests Before Release
+      run: make test
+
     - name: Package Artifact Archive
       run: |
         tar -czvf prime-validator-linux-amd64.tar.gz validator
