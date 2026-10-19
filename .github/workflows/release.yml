@@ -1,0 +1,39 @@
+name: Automated Production Release (CD)
+
+# Chỉ kích hoạt khi đẩy một Git Tag bắt đầu bằng chữ 'v'
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish-artifacts:
+    runs-on: ubuntu-latest
+
+    # Cấp quyền cho robot được ghi dữ liệu và đăng file lên mục Release
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Compilers
+      run: sudo apt-get install -y gcc make
+
+    - name: Build Production Binary
+      run: make build
+
+    - name: Package Artifact Archive
+      run: |
+        tar -czvf prime-validator-linux-amd64.tar.gz validator
+
+    - name: Deploy Asset to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      with:
+        files: prime-validator-linux-amd64.tar.gz
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
